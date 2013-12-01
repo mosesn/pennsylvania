@@ -12,6 +12,7 @@ trait State[A] {
 
 object State {
   def mk[A](rules: Rule[A]): State[A] = mk(new Rulebook(rules))
+  def mk[A](rules: Seq[Rule[A]]): State[A] = mk(new Rulebook(rules))
   def mk[A](rulebook: Rulebook[A]): State[A] = new RuledState(rulebook)
 }
 
@@ -22,8 +23,10 @@ class RuledState[A](rules: Rulebook[A]) extends State[A] {
 
   def send(next: A): Future[Boolean] = mutex.acquire() map { permit =>
     val canTransition = rules.permits(state(), next)
-    if (canTransition && underlying() != next) {
+    val old = underlying()
+    if (canTransition && old != next) {
       underlying() = next
+      rules.transition(old, next)
     }
     permit.release()
     canTransition
