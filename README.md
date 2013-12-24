@@ -12,3 +12,7 @@ are OK etc.
   
 pennsylvania provides a library for building state machines, and also verification
 that you can't end up in a bad state.
+
+## todo
+ReentrantAsyncMutex seems correct, but the locks are not granular.  Can we get rid of a lock
+with just AtomicInteger?
